@@ -1,0 +1,2 @@
+bool equal(const String &other)
+size_t length()
