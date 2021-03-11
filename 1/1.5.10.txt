@@ -1,3 +1,5 @@
 int a;
+
 void bar() { foo(); }
+
 void foo() { std::cout << "Hello, World!\n"; }
