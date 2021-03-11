@@ -1,0 +1,1 @@
+#define MAX(a,b,c){int t1{a},t2{b};c=t1>t2?t1:t2;}
