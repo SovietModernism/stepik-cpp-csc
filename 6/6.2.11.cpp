@@ -1,67 +1,49 @@
-#include <iostream>
-using namespace std;
-
-struct ICloneable
-{
-    virtual ICloneable* clone() const = 0;
-    virtual ~ICloneable() { }
-};
+struct ICloneable;
 
 template <typename T>
-struct ValueHolder : ICloneable {
-
-    ValueHolder(T value) : data_(value) {};
-
-    ValueHolder * clone() const {
-        return new ValueHolder(*this);
-    }
-
-    ~ValueHolder() {}
-
-    T data_;
-};
-
-class Any
-{
-
+struct ValueHolder;
+ 
+class Any{
 public:
-    Any() : data_(0){}
 
-
-    template < class T >
-    Any(T data) : data_(new ValueHolder<T>(data)){}
-
-    ~Any(){
-        delete data_;
+    Any():ptr(0) {} 
+ 
+    ~Any() {
+        delete ptr;     
     }
 
-    Any (Any const & obj) : data_(obj.data_->clone()) {}
+    Any(const Any & other):ptr(other.ptr ? other.ptr->clone() : 0) {}
+    
+    template<typename T>Any(const T val):ptr(new ValueHolder<T>(val)) {}
 
-    template <typename T>
-    Any& operator=(const T & obj){
-            delete data_;
-            data_ = new ValueHolder<T>(obj);
+    Any & operator=(const Any & other) {
+        if(this != &other) {
+            delete ptr;
+            ptr = other.ptr ? other.ptr->clone() : 0;
+        }
+ 
+        return *this;
+    }
+    template<typename T>Any & operator=(const T & val) {
+        delete ptr;
+        ptr = new ValueHolder<T>(val);
+        
         return *this;
     }
 
-    Any& operator=(const Any & obj){
-        if (this != &obj){
-            delete data_;
-            data_ = obj.data_->clone();
+    template<typename T>T * cast() {
+        if(ptr == 0)
+            return 0;
+        else {
+            ValueHolder<T>* pvh = dynamic_cast<ValueHolder<T>*>(ptr);
+            if(pvh == 0)
+                return 0;
+            else
+                return &(pvh->data_);
         }
-        return *this;
     }
-
-    template <typename T>
-    T* cast() {
-        if (data_) {
-            ValueHolder<T> *res = dynamic_cast<ValueHolder<T> *>(data_);
-            if (res) {
-                return &(res->data_);
-            }
-        }
-        return 0;
-    }
-
-    ICloneable * data_;
+    
+    
+private:
+    ICloneable * ptr;
 };
