@@ -1,0 +1,3 @@
+в char ch1 = greet.at(0) будет вызвана не const версия метода at
+
+в char const & ch2 = const_greet.at(0) будет вызвана const версия метода at
